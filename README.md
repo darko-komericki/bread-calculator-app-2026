@@ -1,46 +1,52 @@
-# Astro Starter Kit: Basics
+# MaBaker
+
+A bread recipe calculator with baker's percentage support, hydration suggestions based on flour protein content, and local recipe storage. Works as a PWA for offline use.
+
+## Features
+
+- **Baker's percentage calculator** — enter flour weight, get all ingredient weights calculated in real time
+- **Hydration suggestions** — suggests optimal water percentage based on flour protein content
+- **Water content tracking** — each ingredient has a water content property (e.g. milk 87%, starter 50%) for accurate hydration calculation
+- **Recipe storage** — save, load, edit, and delete recipes (localStorage, no account needed)
+- **Share recipes** — copy a URL with recipe params to share with others
+- **Import/Export** — backup and restore recipes as JSON files
+- **Dark mode** — warm bakery-themed light and dark themes
+- **PWA** — installable, works offline
+- **Mobile-first** — responsive design with touch-friendly controls
+
+## Tech Stack
+
+- [Astro](https://astro.build/) — static site framework
+- [Vue 3](https://vuejs.org/) — interactive calculator component (hydrated island)
+- [Tailwind CSS v4](https://tailwindcss.com/) — styling via Vite plugin
+- localStorage — recipe persistence
+
+## Commands
+
+| Command           | Action                                    |
+| :---------------- | :---------------------------------------- |
+| `npm install`     | Install dependencies                      |
+| `npm run dev`     | Start dev server at `localhost:4321`      |
+| `npm run build`   | Build for production to `./dist/`         |
+| `npm run preview` | Preview production build locally          |
+
+## Deployment
+
+Static site — deploy to Vercel, Netlify, or any static host:
 
 ```sh
-npm create astro@latest -- --template basics
+npm run build
+# Output: dist/
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+No environment variables or database required. All data stays in the user's browser.
 
-## 🚀 Project Structure
+## URL Parameters
 
-Inside of your Astro project, you'll see the following folders and files:
+Share recipes via URL:
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```
+/?flour=1000&water=75&salt=2&leaven=20&protein=12
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Parameters: `flour` (grams), `water` (%), `salt` (%), `leaven` (%), `protein` (g per 100g flour).

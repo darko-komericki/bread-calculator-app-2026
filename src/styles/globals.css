@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+@theme {
+  /* Wireframe — black & white only */
+  --color-bg: #ffffff;
+  --color-bg-alt: #f5f5f5;
+  --color-border: #d4d4d4;
+  --color-text: #111111;
+  --color-text-secondary: #555555;
+  --color-text-muted: #888888;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  /* Font */
+  --font-sans: "Inter", "Roboto", "Helvetica Neue", "Arial Nova", "Nimbus Sans", "Arial", sans-serif;
+}
+
+/* Base */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Number input - hide spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Input */
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  line-height: 1.5;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border: 2px solid var(--color-text);
+  outline: none;
+  transition: box-shadow 0.15s;
+}
+
+.input-field:focus {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.input-field::placeholder {
+  color: var(--color-text-muted);
+}
+
+textarea.input-field {
+  padding-right: 1rem;
+}
+
+/* Buttons */
+.btn-primary {
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  border: 2px solid var(--color-text);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-primary:hover {
+  opacity: 0.85;
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border: 2px solid var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-bg-alt);
+}
+
+.btn-tertiary {
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn-tertiary:hover {
+  background-color: var(--color-bg-alt);
+}
+
+/* Ingredient cards */
+.ingredient-card {
+  border: 2px solid var(--color-text);
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+/* Pills */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.25rem;
+  padding: 0 0.5rem;
+  border: 2px solid var(--color-text);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.pill-base {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* Circle icon buttons */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.5rem;
+  border: 2px solid var(--color-text);
+  border-radius: 9999px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.icon-btn:hover {
+  background-color: var(--color-bg-alt);
+}
+
+.icon-btn:active {
+  background-color: var(--color-border);
+}
