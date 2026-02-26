@@ -29,12 +29,13 @@
 
     <main class="max-w-2xl mx-auto px-4 py-4 space-y-4">
       <!-- Current recipe indicator -->
-      <div v-if="currentRecipeId" class="flex items-center justify-between border-2 border-[var(--color-text)] rounded-[12px] px-3 py-2 text-sm">
-        <span class="text-[var(--color-text-secondary)]">
-          Editing: <strong class="text-[var(--color-text)]">{{ currentRecipeName }}</strong>
-        </span>
-        <button @click="clearForm" class="text-[var(--color-text-muted)] hover:text-[var(--color-text)] text-xs underline">
-          New recipe
+      <div v-if="currentRecipeId" class="bg-[var(--color-surface)] rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-wide font-medium">Editing</p>
+          <p class="font-digital italic text-4xl font-normal text-[var(--color-text)] truncate">{{ currentRecipeName }}</p>
+        </div>
+        <button @click="clearForm" class="icon-btn icon-btn-step shrink-0" aria-label="New recipe">
+          <i class="ri-file-add-line"></i>
         </button>
       </div>
 
