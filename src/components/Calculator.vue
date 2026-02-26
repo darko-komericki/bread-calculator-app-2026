@@ -12,7 +12,7 @@
           <i class="ri-archive-line text-xl leading-none"></i>
           <span
             v-if="recipeCount > 0"
-            class="absolute -top-1 -right-1 w-4 h-4 bg-black text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+            class="absolute -top-1 -right-1 w-4 h-4 bg-[var(--color-badge)] text-[var(--color-badge-fg)] text-[10px] font-bold rounded-full flex items-center justify-center"
           >{{ recipeCount }}</span>
         </button>
       </div>
@@ -24,7 +24,7 @@
         <span class="text-[var(--color-text-secondary)]">
           Editing: <strong class="text-[var(--color-text)]">{{ currentRecipeName }}</strong>
         </span>
-        <button @click="clearForm" class="text-[var(--color-text-muted)] hover:text-black text-xs underline">
+        <button @click="clearForm" class="text-[var(--color-text-muted)] hover:text-[var(--color-text)] text-xs underline">
           New recipe
         </button>
       </div>
@@ -40,22 +40,22 @@
             <span class="pill pill-base">BASE — 100%</span>
           </div>
           <div class="flex items-baseline justify-between mb-4">
-            <span class="text-2xl font-semibold tabular-nums">{{ flour || 0 }}g</span>
+            <span class="text-2xl tabular-nums"><span class="font-digital italic text-6xl font-normal">{{ flour || 0 }}</span><span class="inline-block -skew-x-3">g</span></span>
             <span class="text-base">Protein {{ proteinPer100g }}g / 100g</span>
           </div>
           <div class="flex items-center justify-between">
             <button
               @click="openEditModal('flour')"
-              class="icon-btn"
+              class="icon-btn icon-btn-edit"
               aria-label="Edit flour"
             >
               <i class="ri-pencil-line"></i>
             </button>
             <div class="flex items-center gap-2">
-              <button @click="decrementFlour" class="icon-btn" aria-label="Decrease flour">
+              <button @click="decrementFlour" class="icon-btn icon-btn-step" aria-label="Decrease flour">
                 <i class="ri-subtract-line"></i>
               </button>
-              <button @click="incrementFlour" class="icon-btn" aria-label="Increase flour">
+              <button @click="incrementFlour" class="icon-btn icon-btn-step" aria-label="Increase flour">
                 <i class="ri-add-line"></i>
               </button>
             </div>
@@ -63,8 +63,8 @@
         </div>
 
         <!-- Hydration suggestion -->
-        <div v-if="hasWater" class="w-full py-3 px-4 rounded-[16px] border-2 border-black text-black text-sm font-medium text-center uppercase tracking-wide">
-          {{ hydrationLabel }}
+        <div v-if="hasWater" class="w-full py-3 px-4 rounded-[16px] border-2 border-transparent bg-[#959888] text-[var(--color-text)] text-center font-digital italic text-3xl font-normal tracking-wide">
+          {{ actualHydration }}% — {{ hydrationStatus === 'optimal' ? 'in' : 'suggested' }} {{ suggestedRange.min }}–{{ suggestedRange.max }}% range
         </div>
 
         <!-- Ingredient Cards -->
@@ -78,31 +78,31 @@
             <span class="pill">{{ ing.percentage || 0 }}%</span>
           </div>
           <div class="flex items-baseline justify-between mb-4">
-            <span class="text-2xl font-semibold tabular-nums">{{ calcWeight(ing.percentage) }}g</span>
+            <span class="text-2xl tabular-nums"><span class="font-digital italic text-6xl font-normal">{{ calcWeight(ing.percentage) }}</span><span class="inline-block -skew-x-3">g</span></span>
             <span v-if="ing.waterContent > 0" class="text-base">{{ Math.round(ing.waterContent * 100) }}% water</span>
           </div>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <button
                 @click="removeIngredient(index)"
-                class="icon-btn"
+                class="icon-btn icon-btn-danger"
                 :aria-label="'Delete ' + ing.name"
               >
                 <i class="ri-delete-bin-line"></i>
               </button>
               <button
                 @click="openEditModal(index)"
-                class="icon-btn"
+                class="icon-btn icon-btn-edit"
                 :aria-label="'Edit ' + ing.name"
               >
                 <i class="ri-pencil-line"></i>
               </button>
             </div>
             <div class="flex items-center gap-2">
-              <button @click="decrementIngredient(index)" class="icon-btn" :aria-label="'Decrease ' + ing.name">
+              <button @click="decrementIngredient(index)" class="icon-btn icon-btn-step" :aria-label="'Decrease ' + ing.name">
                 <i class="ri-subtract-line"></i>
               </button>
-              <button @click="incrementIngredient(index)" class="icon-btn" :aria-label="'Increase ' + ing.name">
+              <button @click="incrementIngredient(index)" class="icon-btn icon-btn-step" :aria-label="'Increase ' + ing.name">
                 <i class="ri-add-line"></i>
               </button>
             </div>
@@ -112,7 +112,7 @@
         <!-- Add ingredient -->
         <button
           @click="showAddMenu = true"
-          class="w-full py-3 px-4 rounded-[16px] border-2 border-dashed border-black text-black text-sm font-medium flex items-center justify-center gap-1.5"
+          class="w-full py-3 px-4 rounded-[16px] border-2 border-dashed border-[var(--color-text)] text-[var(--color-text)] text-sm font-medium flex items-center justify-center gap-1.5"
         >
           <i class="ri-add-line text-2xl"></i>
           ADD INGREDIENT
@@ -120,7 +120,7 @@
 
         <!-- Ingredient modal -->
         <div v-if="showAddMenu" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" @click.self="showAddMenu = false">
-          <div class="bg-white border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md p-5 space-y-4">
+          <div class="bg-[var(--color-bg)] border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md p-5 space-y-4">
             <h3 class="text-lg font-semibold">Ingredients</h3>
             <div ref="ingredientListRef" class="space-y-1 max-h-[60vh] overflow-y-auto -mx-2 px-2">
               <div
@@ -132,7 +132,7 @@
                 <button
                   v-if="isAdded(item)"
                   @click="removeIngredientByName(item)"
-                  class="icon-btn"
+                  class="icon-btn icon-btn-danger"
                   :aria-label="'Remove ' + item"
                 >
                   <i class="ri-delete-bin-line"></i>
@@ -154,7 +154,7 @@
 
       <!-- Edit Modal -->
       <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" @click.self="showEditModal = false">
-        <div class="bg-white border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md p-5 space-y-4">
+        <div class="bg-[var(--color-bg)] border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md p-5 space-y-4">
           <h3 class="text-lg font-semibold">
             Edit {{ editTarget === 'flour' ? 'Flour' : editName }}
           </h3>
@@ -195,37 +195,37 @@
       </div>
 
       <!-- Results -->
-      <section class="border-2 border-[var(--color-text)] rounded-[16px] p-5">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-medium text-[var(--color-text-muted)]">Summary</h2>
-          <button @click="printSummary" class="icon-btn !w-8 !h-8 !text-base" aria-label="Print summary">
+      <section class="bg-[var(--color-surface)] rounded-[16px] p-5">
+        <div class="flex justify-between mb-3">
+          <h2 class="text-lg font-medium text-[var(--color-text)]">Recipe</h2>
+          <button @click="printSummary" class="icon-btn icon-btn-step" aria-label="Print summary">
             <i class="ri-printer-line"></i>
           </button>
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="border-2 border-[var(--color-text)] rounded-[12px] p-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="bg-[#959888] rounded-[12px] p-3">
             <p class="text-xs font-medium">Total dough</p>
-            <p class="text-xl font-bold tabular-nums">{{ totalDough }}g</p>
+            <p class="text-base tabular-nums"><span class="font-digital italic text-6xl font-normal">{{ totalDough }}</span><span class="inline-block -skew-x-3">g</span></p>
           </div>
-          <div class="border-2 border-[var(--color-text)] rounded-[12px] p-3">
+          <div class="bg-[#959888] rounded-[12px] p-3">
             <p class="text-xs font-medium">Hydration</p>
-            <p class="text-xl font-bold tabular-nums">{{ actualHydration }}%</p>
+            <p class="text-base tabular-nums"><span class="font-digital italic text-6xl font-normal">{{ actualHydration }}</span><span class="inline-block -skew-x-3">%</span></p>
           </div>
         </div>
         <div class="mt-4 space-y-1.5">
-          <div class="flex justify-between text-sm">
-            <span class="text-[var(--color-text-secondary)]">Flour</span>
-            <span class="font-medium tabular-nums">{{ flour || 0 }}g<span class="text-[var(--color-text-muted)] ml-2 text-xs">100%</span></span>
+          <div class="flex justify-between text-base">
+            <span class="text-[var(--color-text)]">Flour</span>
+            <span class="font-medium tabular-nums text-[var(--color-text)]">{{ flour || 0 }}g<span class="ml-2 text-xs">100%</span></span>
           </div>
-          <div v-for="ing in ingredients" :key="'s-' + ing.name" class="flex justify-between text-sm">
-            <span class="text-[var(--color-text-secondary)]">{{ ing.name }}</span>
-            <span class="font-medium tabular-nums">{{ calcWeight(ing.percentage) }}g<span class="text-[var(--color-text-muted)] ml-2 text-xs">{{ ing.percentage || 0 }}%</span></span>
+          <div v-for="ing in ingredients" :key="'s-' + ing.name" class="flex justify-between text-base">
+            <span class="text-[var(--color-text)]">{{ ing.name }}</span>
+            <span class="font-medium tabular-nums text-[var(--color-text)]">{{ calcWeight(ing.percentage) }}g<span class="ml-2 text-xs">{{ ing.percentage || 0 }}%</span></span>
           </div>
         </div>
       </section>
 
       <!-- Actions -->
-      <section class="flex flex-wrap gap-2">
+      <section class="flex flex-col sm:flex-row flex-wrap gap-2 bg-[var(--color-surface)] rounded-[16px] p-4">
         <button @click="openSaveDialog" class="btn-primary flex-1 min-w-[120px]">
           {{ currentRecipeId ? 'Update recipe' : 'Save recipe' }}
         </button>
@@ -237,7 +237,7 @@
 
       <!-- Save Dialog -->
       <div v-if="showSaveDialog" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" @click.self="showSaveDialog = false">
-        <div class="bg-white border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md p-5 space-y-4">
+        <div class="bg-[var(--color-bg)] border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md p-5 space-y-4">
           <h3 class="text-lg font-semibold">
             {{ currentRecipeId ? 'Update recipe' : 'Save recipe' }}
           </h3>
@@ -271,7 +271,7 @@
 
       <!-- Recipe Panel -->
       <div v-if="showRecipes" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" @click.self="showRecipes = false">
-        <div class="bg-white border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md max-h-[80vh] overflow-y-auto">
+        <div class="bg-[var(--color-bg)] border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md max-h-[80vh] overflow-y-auto">
           <RecipeManager
             @load="handleLoadRecipe"
             @close="showRecipes = false"
@@ -282,11 +282,11 @@
 
       <!-- Import/Export -->
       <section class="flex gap-2 text-sm">
-        <button @click="handleExport" class="text-[var(--color-text-secondary)] hover:text-black underline">
+        <button @click="handleExport" class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] underline">
           Export recipes
         </button>
         <span class="text-[var(--color-border)]">&middot;</span>
-        <label class="text-[var(--color-text-secondary)] hover:text-black underline cursor-pointer">
+        <label class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] underline cursor-pointer">
           Import recipes
           <input type="file" accept=".json" class="hidden" @change="handleImport" />
         </label>
@@ -297,7 +297,7 @@
         <div
           v-if="toast.show"
           class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-md text-sm font-medium shadow-lg"
-          :class="toast.type === 'error' ? 'bg-black text-white' : 'bg-black text-white'"
+          :class="toast.type === 'error' ? 'bg-[var(--color-text)] text-[var(--color-bg)]' : 'bg-[var(--color-accent)] text-[var(--color-accent-fg)]'"
         >
           {{ toast.message }}
         </div>

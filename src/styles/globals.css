@@ -1,20 +1,59 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Digital7";
+  src: url("/fonts/Digital7Italic.woff2") format("woff2");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
 @theme {
-  /* Wireframe — black & white only */
-  --color-bg: #ffffff;
-  --color-bg-alt: #f5f5f5;
-  --color-border: #d4d4d4;
-  --color-text: #111111;
-  --color-text-secondary: #555555;
-  --color-text-muted: #888888;
+  /* 80s calculator — warm baked palette */
+  --color-bg: #C7C5A8;              /* warm sage body */
+  --color-bg-alt: #faeed1;          /* papaya-whip-100: hover surfaces */
+  --color-surface: #F9EBCB;
+  --color-border: #ddc9bb;          /* coffee-bean-200: subtle warm border */
+  --color-text: #1E150F;
+  --color-text-secondary: #664733;  /* coffee-bean-700: medium brown */
+  --color-text-muted: #aa7755;      /* coffee-bean-500: muted warm */
+
+  /* Increment / Decrement */
+  --color-step: #9ea092;            /* ash-grey-400 */
+  --color-step-dark: #868877;       /* ash-grey-500 */
+  --color-step-fg: #f3f3f1;         /* ash-grey-50 */
+
+  /* Destructive / Edit */
+  --color-danger: #ec8d53;          /* toasted-almond ~400 */
+  --color-danger-fg: #ffffff;
+  --color-edit: #c3c1a2;            /* dry-sage-300 */
+  --color-edit-dark: #afac83;       /* dry-sage-400 */
+  --color-edit-fg: #ffffff;
+
+  /* Orange action key (= button) */
+  --color-accent: #e66819;          /* toasted-almond-500 */
+  --color-accent-dark: #b85314;     /* toasted-almond-600 */
+  --color-accent-fg: #fcf0e8;       /* toasted-almond-50 */
+  --color-badge: #EC8D53;
+  --color-badge-fg: #1E150F;
+
+  /* Olive secondary keys */
+  --color-sage: #5d5b3c;            /* dry-sage-700 */
+  --color-sage-dark: #3e3d28;       /* dry-sage-800 */
+  --color-sage-fg: #f5f5ef;         /* dry-sage-50 */
+
+  /* LCD display readout */
+  --color-display-bg: #5e635f;
+  --color-display-border: #afac83;  /* dry-sage-400 */
+  --color-display-text: #e7e8e3;
 
   /* Shadows */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 1px 3px rgba(46, 34, 5, 0.1);
+  --shadow-lg: 0 4px 12px rgba(46, 34, 5, 0.15);
 
   /* Font */
   --font-sans: "Inter", "Roboto", "Helvetica Neue", "Arial Nova", "Nimbus Sans", "Arial", sans-serif;
+  --font-digital: "Digital7", monospace;
 }
 
 /* Base */
@@ -47,15 +86,16 @@ input[type="number"] {
   border-radius: 12px;
   font-size: 1rem;
   line-height: 1.5;
-  background-color: var(--color-bg);
+  background-color: var(--color-surface);
   color: var(--color-text);
-  border: 2px solid var(--color-text);
+  border: 2px solid var(--color-border);
   outline: none;
-  transition: box-shadow 0.15s;
+  transition: box-shadow 0.15s, border-color 0.15s;
 }
 
 .input-field:focus {
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(230, 104, 25, 0.15);
 }
 
 .input-field::placeholder {
@@ -74,15 +114,16 @@ textarea.input-field {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  background-color: var(--color-text);
-  color: var(--color-bg);
-  border: 2px solid var(--color-text);
+  background-color: #9EA092;
+  color: #1E150F;
+  border: 2px solid #9EA092;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: background-color 0.15s, border-color 0.15s;
 }
 
 .btn-primary:hover {
-  opacity: 0.85;
+  background-color: #c3c1a2;
+  border-color: #c3c1a2;
 }
 
 .btn-primary:disabled {
@@ -98,14 +139,15 @@ textarea.input-field {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   background-color: var(--color-bg);
-  color: var(--color-text);
-  border: 2px solid var(--color-text);
+  color: #1E150F;
+  border: 2px solid var(--color-bg);
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s;
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-bg-alt);
+  background-color: #b3b19a;
+  border-color: #b3b19a;
 }
 
 .btn-tertiary {
@@ -115,20 +157,21 @@ textarea.input-field {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  background-color: transparent;
-  color: var(--color-text-secondary);
-  border: 2px solid var(--color-border);
+  background-color: #EC8D53;
+  color: #1E150F;
+  border: 2px solid #EC8D53;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s;
 }
 
 .btn-tertiary:hover {
-  background-color: var(--color-bg-alt);
+  background-color: #e66819;
+  border-color: #e66819;
 }
 
 /* Ingredient cards */
 .ingredient-card {
-  border: 2px solid var(--color-text);
+  background-color: var(--color-surface);
   border-radius: 16px;
   padding: 1rem;
 }
@@ -140,17 +183,19 @@ textarea.input-field {
   justify-content: center;
   height: 1.25rem;
   padding: 0 0.5rem;
-  border: 2px solid var(--color-text);
+  border: none;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
+  background-color: var(--color-badge);
+  color: var(--color-badge-fg);
 }
 
 .pill-base {
-  background-color: var(--color-text);
-  color: var(--color-bg);
+  background-color: var(--color-badge);
+  color: var(--color-badge-fg);
 }
 
 /* Circle icon buttons */
@@ -161,9 +206,10 @@ textarea.input-field {
   width: 3rem;
   height: 3rem;
   font-size: 1.5rem;
-  border: 2px solid var(--color-text);
+  border: none;
   border-radius: 9999px;
-  background: transparent;
+  background-color: var(--color-surface);
+  color: var(--color-text);
   cursor: pointer;
   transition: background-color 0.15s;
 }
@@ -174,4 +220,31 @@ textarea.input-field {
 
 .icon-btn:active {
   background-color: var(--color-border);
+}
+
+.icon-btn-step {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.icon-btn-edit {
+  background-color: #9EA092;
+  color: var(--color-text);
+}
+
+.icon-btn-danger {
+  background-color: #EC8D53;
+  color: var(--color-text);
+}
+
+.icon-btn-step:hover {
+  background-color: #b3b19a;
+}
+
+.icon-btn-edit:hover {
+  background-color: #c3c1a2;
+}
+
+.icon-btn-danger:hover {
+  background-color: #e66819;
 }
