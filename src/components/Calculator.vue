@@ -670,7 +670,7 @@ const hasWater = computed(() => ingredients.some((i) => (i.waterContent ?? 0) > 
 // Hydration suggestions
 const suggestedRange = computed(() => getSuggestedHydrationRange(weightedProtein.value || 12.5));
 const hydrationStatus = computed(() => getHydrationStatus(actualHydration.value, weightedProtein.value || 12.5));
-const recipeCount = ref(storage.getRecipes().length);
+const recipeCount = ref(0);
 
 watch(recipeRefreshKey, () => {
   recipeCount.value = storage.getRecipes().length;
@@ -847,6 +847,7 @@ function handleImport(e) {
 
 // Init
 onMounted(() => {
+  recipeCount.value = storage.getRecipes().length;
   if (!loadFromURL()) {
     const draft = storage.loadDraft();
     if (draft) {
