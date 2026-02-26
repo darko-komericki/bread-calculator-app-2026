@@ -30,7 +30,7 @@
           <div class="min-w-0 flex-1">
             <h3 class="font-medium truncate">{{ recipe.name }}</h3>
             <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-              {{ recipe.flour }}g flour<template v-if="recipe.ingredients?.length"> &middot; {{ recipe.ingredients.map(i => i.name).join(', ') }}</template>
+              {{ getFlourSummary(recipe) }}<template v-if="recipe.ingredients?.length"> &middot; {{ recipe.ingredients.map(i => i.name).join(', ') }}</template>
             </p>
             <p v-if="recipe.notes" class="text-xs text-[var(--color-text-muted)] mt-1 line-clamp-2">{{ recipe.notes }}</p>
             <p class="text-[10px] text-[var(--color-text-muted)] mt-1">{{ formatDate(recipe.updatedAt || recipe.createdAt) }}</p>
@@ -75,7 +75,7 @@ import { ref, computed, watch } from 'vue';
 import * as storage from '../utils/storage.js';
 
 const props = defineProps({ refreshKey: Number });
-const emit = defineEmits(['load', 'close']);
+const emit = defineEmits(['load', 'close', 'delete']);
 
 const recipes = ref(storage.getRecipes());
 const search = ref('');
@@ -100,6 +100,17 @@ function handleDelete() {
   storage.deleteRecipe(deletingRecipe.value.id);
   recipes.value = storage.getRecipes();
   deletingRecipe.value = null;
+  emit('delete');
+}
+
+function getFlourSummary(recipe) {
+  if (Array.isArray(recipe.flours) && recipe.flours.length) {
+    const total = recipe.flours.reduce((s, f) => s + (f.weight || 0), 0);
+    return recipe.flours.length === 1
+      ? `${total}g ${recipe.flours[0].name}`
+      : `${total}g flour (${recipe.flours.map(f => f.name).join(' + ')})`;
+  }
+  return `${recipe.flour ?? 0}g flour`;
 }
 
 function formatDate(dateStr) {

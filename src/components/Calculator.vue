@@ -5,7 +5,7 @@
       <div class="max-w-2xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[var(--color-surface)] rounded-2xl p-4">
         <h1 class="font-digital italic text-5xl font-normal text-[var(--color-text)] tracking-wide">MA/BAKER</h1>
         <div class="flex items-center gap-2">
-          <button @click="handleExport" class="icon-btn icon-btn-step" aria-label="Export recipes">
+          <button v-if="recipeCount > 0" @click="handleExport" class="icon-btn icon-btn-step" aria-label="Export recipes">
             <i class="ri-download-line"></i>
           </button>
           <label class="icon-btn icon-btn-step" aria-label="Import recipes">
@@ -43,31 +43,112 @@
       <section class="space-y-4">
         <h2 class="sr-only">Ingredients</h2>
 
-        <!-- Flour Card -->
-        <div class="ingredient-card">
+        <!-- Flour Cards -->
+        <div
+          v-for="(flour, index) in flours"
+          :key="index"
+          class="ingredient-card"
+        >
           <div class="flex items-start justify-between mb-1">
-            <h3 class="text-base font-normal">Flour</h3>
-            <span class="pill pill-base">BASE — 100%</span>
+            <h3 class="text-base font-normal">{{ flour.name }}</h3>
+            <span v-if="flours.length === 1" class="pill pill-base">BASE — 100%</span>
+            <span v-else class="pill pill-base">{{ Math.round((flour.weight || 0) / (totalFlour || 1) * 100) }}%</span>
           </div>
           <div class="flex items-baseline justify-between mb-4">
-            <span class="text-2xl tabular-nums"><span class="font-digital italic text-6xl font-normal">{{ flour || 0 }}</span><span class="inline-block -skew-x-3">g</span></span>
-            <span class="text-base">Protein {{ proteinPer100g }}g / 100g</span>
+            <span class="text-2xl tabular-nums"><span class="font-digital italic text-6xl font-normal">{{ flour.weight || 0 }}</span><span class="inline-block -skew-x-3">g</span></span>
+            <span class="text-base">Protein {{ flour.protein }}g / 100g</span>
           </div>
           <div class="flex items-center justify-between">
-            <button
-              @click="openEditModal('flour')"
-              class="icon-btn icon-btn-edit"
-              aria-label="Edit flour"
-            >
-              <i class="ri-pencil-line"></i>
-            </button>
             <div class="flex items-center gap-2">
-              <button @click="decrementFlour" class="icon-btn icon-btn-step" aria-label="Decrease flour">
+              <button
+                v-if="flours.length > 1"
+                @click="removeFlour(index)"
+                class="icon-btn icon-btn-danger"
+                :aria-label="'Delete ' + flour.name"
+              >
+                <i class="ri-delete-bin-line"></i>
+              </button>
+              <button
+                @click="openFlourEditModal(index)"
+                class="icon-btn icon-btn-edit"
+                :aria-label="'Edit ' + flour.name"
+              >
+                <i class="ri-pencil-line"></i>
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <button @click="decrementFlour(index)" class="icon-btn icon-btn-step" :aria-label="'Decrease ' + flour.name">
                 <i class="ri-subtract-line"></i>
               </button>
-              <button @click="incrementFlour" class="icon-btn icon-btn-step" aria-label="Increase flour">
+              <button @click="incrementFlour(index)" class="icon-btn icon-btn-step" :aria-label="'Increase ' + flour.name">
                 <i class="ri-add-line"></i>
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flour total row (2+ flours) -->
+        <div v-if="flours.length > 1" class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[var(--color-surface)] text-sm text-[var(--color-text-muted)]">
+          <i class="ri-information-line shrink-0"></i>
+          <span>Total <span class="font-medium text-[var(--color-text)]">{{ totalFlour }}g</span> &middot; Avg protein <span class="font-medium text-[var(--color-text)]">{{ weightedProtein.toFixed(1) }}g/100g</span></span>
+        </div>
+
+        <!-- Add flour -->
+        <button
+          @click="showAddFlourMenu = true"
+          class="w-full py-3 px-4 rounded-[16px] border-2 border-dashed border-[var(--color-text)] text-[var(--color-text)] text-sm font-medium flex items-center justify-center gap-1.5"
+        >
+          <i class="ri-add-line text-2xl"></i>
+          ADD FLOUR
+        </button>
+
+        <!-- Add flour modal -->
+        <div v-if="showAddFlourMenu" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" @click.self="showAddFlourMenu = false">
+          <div class="bg-[var(--color-bg)] rounded-2xl w-full max-w-md p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-digital italic text-4xl font-normal text-[var(--color-text)]">Flour</h3>
+              <button @click="showAddFlourMenu = false" class="icon-btn icon-btn-step" aria-label="Close">
+                <i class="ri-close-line"></i>
+              </button>
+            </div>
+            <div class="relative overflow-hidden rounded-b-2xl">
+              <div ref="flourListRef" class="space-y-2 max-h-[60vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]" @scroll="onFlourListScroll">
+                <div
+                  v-for="type in FLOUR_TYPES"
+                  :key="type.name"
+                  class="ingredient-card flex items-center justify-between"
+                >
+                  <span class="text-base font-medium" :class="isFlourAdded(type.name) ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-text)]'">{{ type.name }}</span>
+                  <button
+                    v-if="isFlourAdded(type.name)"
+                    @click="removeFlourByName(type.name)"
+                    class="icon-btn icon-btn-danger"
+                    :aria-label="'Remove ' + type.name"
+                  >
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                  <button
+                    v-else
+                    @click="addFlour(type)"
+                    class="icon-btn icon-btn-step"
+                    :aria-label="'Add ' + type.name"
+                  >
+                    <i class="ri-add-line"></i>
+                  </button>
+                </div>
+                <div class="ingredient-card flex items-center justify-between">
+                  <span class="text-base font-medium">Custom</span>
+                  <button
+                    @click="addFlour({ name: '', protein: 12.5 })"
+                    class="icon-btn icon-btn-step"
+                    aria-label="Add custom flour"
+                  >
+                    <i class="ri-add-line"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="pointer-events-none absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-[var(--color-bg)] to-transparent transition-opacity duration-300" :class="flourListAtTop ? 'opacity-0' : 'opacity-100'"></div>
+              <div class="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[var(--color-bg)] to-transparent transition-opacity duration-300" :class="flourListAtBottom ? 'opacity-0' : 'opacity-100'"></div>
             </div>
           </div>
         </div>
@@ -175,38 +256,38 @@
         <div class="bg-[var(--color-bg)] rounded-2xl w-full max-w-md p-4 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="font-digital italic text-4xl font-normal text-[var(--color-text)]">
-              {{ editTarget === 'flour' ? 'Flour' : editName }}
+              {{ editName || 'Edit' }}
             </h3>
             <button @click="showEditModal = false" class="icon-btn icon-btn-step" aria-label="Close">
               <i class="ri-close-line"></i>
             </button>
           </div>
-          <!-- Name (not for flour) -->
-          <div v-if="editTarget !== 'flour'">
+          <!-- Name (always shown) -->
+          <div>
             <label class="block text-sm font-medium mb-1">Name</label>
             <input v-model="editName" type="text" class="input-field" />
           </div>
           <!-- Amount -->
           <div>
             <label class="block text-sm font-medium mb-1">
-              {{ editTarget === 'flour' ? 'Amount (g)' : 'Percentage (%)' }}
+              {{ editTarget?.type === 'flour' ? 'Amount (g)' : 'Percentage (%)' }}
             </label>
             <input v-model.number="editAmount" type="number" inputmode="decimal" min="0" class="input-field" />
           </div>
           <!-- Increment -->
           <div>
             <label class="block text-sm font-medium mb-1">
-              +/- step {{ editTarget === 'flour' ? '(g)' : '(%)' }}
+              +/- step {{ editTarget?.type === 'flour' ? '(g)' : '(%)' }}
             </label>
             <input v-model.number="editIncrement" type="number" inputmode="decimal" min="0.1" step="0.1" class="input-field" />
           </div>
           <!-- Protein (flour only) -->
-          <div v-if="editTarget === 'flour'">
+          <div v-if="editTarget?.type === 'flour'">
             <label class="block text-sm font-medium mb-1">Protein per 100g</label>
             <input v-model.number="editProtein" type="number" inputmode="decimal" min="8" max="15" step="0.1" class="input-field" />
           </div>
           <!-- Water content (ingredients only) -->
-          <div v-if="editTarget !== 'flour'">
+          <div v-if="editTarget?.type !== 'flour'">
             <label class="block text-sm font-medium mb-1">Water content (%)</label>
             <input v-model.number="editWaterContent" type="number" inputmode="decimal" min="0" max="100" step="1" class="input-field" />
           </div>
@@ -236,9 +317,9 @@
           </div>
         </div>
         <div class="mt-4 space-y-1.5">
-          <div class="flex justify-between text-base">
-            <span class="text-[var(--color-text)]">Flour</span>
-            <span class="font-medium tabular-nums text-[var(--color-text)]">{{ flour || 0 }}g<span class="ml-2 text-xs">100%</span></span>
+          <div v-for="f in flours" :key="'s-flour-' + f.name" class="flex justify-between text-base">
+            <span class="text-[var(--color-text)]">{{ f.name }}</span>
+            <span class="font-medium tabular-nums text-[var(--color-text)]">{{ f.weight || 0 }}g<span class="ml-2 text-xs">{{ Math.round((f.weight || 0) / (totalFlour || 1) * 100) }}%</span></span>
           </div>
           <div v-for="ing in ingredients" :key="'s-' + ing.name" class="flex justify-between text-base">
             <span class="text-[var(--color-text)]">{{ ing.name }}</span>
@@ -303,6 +384,7 @@
           <RecipeManager
             @load="handleLoadRecipe"
             @close="showRecipes = false"
+            @delete="recipeRefreshKey++"
             :refreshKey="recipeRefreshKey"
           />
         </div>
@@ -335,6 +417,20 @@ const STARTER_PACK = [
   'Poolish', 'Oil', 'Sugar', 'Butter', 'Eggs', 'Honey',
 ];
 
+const FLOUR_TYPES = [
+  { name: 'Bread Flour',       protein: 12.5 },
+  { name: 'All-Purpose Flour', protein: 10.5 },
+  { name: 'Whole Wheat',       protein: 13.5 },
+  { name: 'Rye Flour',         protein: 8.5  },
+  { name: 'Spelt Flour',       protein: 11.5 },
+  { name: 'Semolina',          protein: 13.0 },
+  { name: 'Einkorn',           protein: 14.0 },
+  { name: 'Pastry Flour',      protein: 8.0  },
+  { name: 'Oat Flour',         protein: 10.0 },
+];
+
+const DEFAULT_FLOUR_INCREMENT = 50;
+
 const DEFAULT_PERCENTAGES = {
   Water: 65, Salt: 2, Yeast: 2, 'Baking Powder': 1.5, Leaven: 20,
   Poolish: 30, Milk: 60, Oil: 3, Sugar: 5, Butter: 5,
@@ -352,20 +448,41 @@ const DEFAULT_WATER_CONTENT = {
   Eggs: 0.75, Butter: 0.15, Honey: 0.17,
 };
 
-const flour = ref(1000);
-const flourIncrement = ref(50);
-const proteinPer100g = ref(12.5);
+const flours = reactive([
+  { name: 'Bread Flour', weight: 1000, protein: 12.5, increment: DEFAULT_FLOUR_INCREMENT },
+]);
+
 const ingredients = reactive([
   { name: 'Water', percentage: 65, increment: 5, waterContent: 1 },
   { name: 'Salt', percentage: 2, increment: 0.5, waterContent: 0 },
   { name: 'Leaven', percentage: 20, increment: 5, waterContent: 0.5 },
 ]);
 
+const totalFlour = computed(() => flours.reduce((s, f) => s + (f.weight || 0), 0));
+const weightedProtein = computed(() => {
+  const total = totalFlour.value;
+  if (!total) return 12.5;
+  return flours.reduce((s, f) => s + (f.weight || 0) * (f.protein || 0), 0) / total;
+});
+
+function migrateFlours(data) {
+  if (Array.isArray(data.flours) && data.flours.length) {
+    return data.flours.map(f => ({
+      name:      f.name      ?? 'Flour',
+      weight:    f.weight    ?? 0,
+      protein:   f.protein   ?? 12.5,
+      increment: f.increment ?? DEFAULT_FLOUR_INCREMENT,
+    }));
+  }
+  return [{ name: 'Flour', weight: data.flour ?? 1000, protein: data.proteinPer100g ?? 12.5, increment: DEFAULT_FLOUR_INCREMENT }];
+}
+
 const currentRecipeId = ref(null);
 const currentRecipeName = ref('');
 const showRecipes = ref(false);
 const showSaveDialog = ref(false);
 const showAddMenu = ref(false);
+const showAddFlourMenu = ref(false);
 const recipeName = ref('');
 const recipeNotes = ref('');
 const copied = ref(false);
@@ -374,11 +491,20 @@ const nameInput = ref(null);
 const ingredientListRef = ref(null);
 const ingredientListAtBottom = ref(false);
 const ingredientListAtTop = ref(true);
+const flourListRef = ref(null);
+const flourListAtBottom = ref(false);
+const flourListAtTop = ref(true);
 
 function onIngredientListScroll(e) {
   const el = e.target;
   ingredientListAtTop.value = el.scrollTop <= 2;
   ingredientListAtBottom.value = el.scrollHeight - el.scrollTop <= el.clientHeight + 2;
+}
+
+function onFlourListScroll(e) {
+  const el = e.target;
+  flourListAtTop.value = el.scrollTop <= 2;
+  flourListAtBottom.value = el.scrollHeight - el.scrollTop <= el.clientHeight + 2;
 }
 
 watch(showAddMenu, (open) => {
@@ -398,59 +524,102 @@ watch(showAddMenu, (open) => {
   }
 });
 
+watch(showAddFlourMenu, (open) => {
+  if (open) {
+    nextTick(() => {
+      if (flourListRef.value) {
+        disableBodyScroll(flourListRef.value);
+        const el = flourListRef.value;
+        flourListAtTop.value = true;
+        flourListAtBottom.value = el.scrollHeight <= el.clientHeight;
+      }
+    });
+  } else {
+    if (flourListRef.value) enableBodyScroll(flourListRef.value);
+    flourListAtBottom.value = false;
+    flourListAtTop.value = true;
+  }
+});
+
 // Edit modal
 const showEditModal = ref(false);
-const editTarget = ref(null); // 'flour' or ingredient index
+const editTarget = ref(null); // { type: 'flour', index: N } or ingredient index (number)
 const editName = ref('');
 const editAmount = ref(0);
 const editIncrement = ref(0);
 const editProtein = ref(0);
 const editWaterContent = ref(0);
 
+function openFlourEditModal(index) {
+  const f = flours[index];
+  editTarget.value = { type: 'flour', index };
+  editName.value = f.name;
+  editAmount.value = f.weight;
+  editIncrement.value = f.increment;
+  editProtein.value = f.protein;
+  showEditModal.value = true;
+}
+
 function openEditModal(target) {
-  if (target === 'flour') {
-    editTarget.value = 'flour';
-    editName.value = 'Flour';
-    editAmount.value = flour.value;
-    editIncrement.value = flourIncrement.value;
-    editProtein.value = proteinPer100g.value;
-    editWaterContent.value = 0;
-  } else {
-    editTarget.value = target;
-    const ing = ingredients[target];
-    editName.value = ing.name;
-    editAmount.value = ing.percentage;
-    editIncrement.value = ing.increment;
-    editWaterContent.value = Math.round((ing.waterContent ?? 0) * 100);
-    editProtein.value = 0;
-  }
+  editTarget.value = target;
+  const ing = ingredients[target];
+  editName.value = ing.name;
+  editAmount.value = ing.percentage;
+  editIncrement.value = ing.increment;
+  editWaterContent.value = Math.round((ing.waterContent ?? 0) * 100);
+  editProtein.value = 0;
   showEditModal.value = true;
 }
 
 function saveEditModal() {
-  if (editTarget.value === 'flour') {
-    flour.value = editAmount.value;
-    flourIncrement.value = editIncrement.value;
-    proteinPer100g.value = editProtein.value;
-  } else {
-    const ing = ingredients[editTarget.value];
-    ing.name = editName.value;
-    ing.percentage = editAmount.value;
-    ing.increment = editIncrement.value;
-    ing.waterContent = (editWaterContent.value || 0) / 100;
+  if (editTarget.value?.type === 'flour') {
+    const f = flours[editTarget.value.index];
+    f.name = editName.value;
+    f.weight = editAmount.value;
+    f.increment = editIncrement.value;
+    f.protein = editProtein.value;
+    showEditModal.value = false;
+    return;
   }
+  const ing = ingredients[editTarget.value];
+  ing.name = editName.value;
+  ing.percentage = editAmount.value;
+  ing.increment = editIncrement.value;
+  ing.waterContent = (editWaterContent.value || 0) / 100;
   showEditModal.value = false;
 }
 
-// +/- controls
-function incrementFlour() {
-  flour.value = (flour.value || 0) + flourIncrement.value;
+// Flour controls
+function incrementFlour(index) {
+  flours[index].weight = (flours[index].weight || 0) + flours[index].increment;
 }
 
-function decrementFlour() {
-  flour.value = Math.max(0, (flour.value || 0) - flourIncrement.value);
+function decrementFlour(index) {
+  flours[index].weight = Math.max(0, (flours[index].weight || 0) - flours[index].increment);
 }
 
+function removeFlour(index) {
+  if (flours.length <= 1) return;
+  flours.splice(index, 1);
+}
+
+function isFlourAdded(name) {
+  return flours.some(f => f.name === name);
+}
+
+function removeFlourByName(name) {
+  if (flours.length <= 1) return;
+  const idx = flours.findIndex(f => f.name === name);
+  if (idx >= 0) flours.splice(idx, 1);
+}
+
+function addFlour(type) {
+  flours.push({ name: type.name, weight: 0, protein: type.protein, increment: DEFAULT_FLOUR_INCREMENT });
+  showAddFlourMenu.value = false;
+  openFlourEditModal(flours.length - 1);
+}
+
+// Ingredient controls
 function incrementIngredient(index) {
   const ing = ingredients[index];
   ing.percentage = Math.round(((ing.percentage || 0) + ing.increment) * 100) / 100;
@@ -491,32 +660,28 @@ function removeIngredient(index) {
 
 // Calculations
 function calcWeight(percentage) {
-  return calculateWeight(flour.value || 0, percentage || 0);
+  return calculateWeight(totalFlour.value || 0, percentage || 0);
 }
 
-const totalDough = computed(() => calculateTotalDough(flour.value || 0, ingredients));
-const actualHydration = computed(() => calculateActualHydration(flour.value || 0, ingredients));
+const totalDough = computed(() => calculateTotalDough(totalFlour.value || 0, ingredients));
+const actualHydration = computed(() => calculateActualHydration(totalFlour.value || 0, ingredients));
 const hasWater = computed(() => ingredients.some((i) => (i.waterContent ?? 0) > 0));
 
 // Hydration suggestions
-const suggestedRange = computed(() => getSuggestedHydrationRange(proteinPer100g.value || 12.5));
-const hydrationStatus = computed(() => getHydrationStatus(actualHydration.value, proteinPer100g.value || 12.5));
-const recipeCount = computed(() => storage.getRecipes().length);
+const suggestedRange = computed(() => getSuggestedHydrationRange(weightedProtein.value || 12.5));
+const hydrationStatus = computed(() => getHydrationStatus(actualHydration.value, weightedProtein.value || 12.5));
+const recipeCount = ref(storage.getRecipes().length);
 
-const hydrationLabel = computed(() => {
-  const range = suggestedRange.value;
-  if (hydrationStatus.value === 'optimal') return `${actualHydration.value}% — in ${range.min}–${range.max}% range`;
-  return `${actualHydration.value}% — suggested ${range.min}–${range.max}%`;
+watch(recipeRefreshKey, () => {
+  recipeCount.value = storage.getRecipes().length;
 });
-
-
 
 // Draft auto-save
 function getDraftData() {
-  return { flour: flour.value, proteinPer100g: proteinPer100g.value, ingredients: [...ingredients] };
+  return { flours: flours.map(f => ({ ...f })), ingredients: [...ingredients] };
 }
 
-watch([flour, proteinPer100g, ingredients], () => {
+watch([flours, ingredients], () => {
   storage.saveDraft(getDraftData());
 }, { deep: true });
 
@@ -540,8 +705,7 @@ function handleSave() {
     const recipe = storage.saveRecipe({
       id: currentRecipeId.value || undefined,
       name: recipeName.value.trim(),
-      flour: flour.value,
-      proteinPer100g: proteinPer100g.value,
+      flours: flours.map(f => ({ name: f.name, weight: f.weight, protein: f.protein })),
       ingredients: ingredients.map((i) => ({ name: i.name, percentage: i.percentage, waterContent: i.waterContent ?? 0 })),
       notes: recipeNotes.value.trim(),
     });
@@ -557,8 +721,8 @@ function handleSave() {
 
 // Load recipe
 function handleLoadRecipe(recipe) {
-  flour.value = recipe.flour || 1000;
-  proteinPer100g.value = recipe.proteinPer100g || 12;
+  const migratedFlours = migrateFlours(recipe);
+  flours.splice(0, flours.length, ...migratedFlours);
   const loaded = (recipe.ingredients || []).map((i) => ({
     ...i,
     increment: i.increment ?? DEFAULT_INCREMENTS[i.name] ?? 1,
@@ -574,9 +738,7 @@ function handleLoadRecipe(recipe) {
 
 // Clear
 function clearForm() {
-  flour.value = 1000;
-  proteinPer100g.value = 12.5;
-  flourIncrement.value = 50;
+  flours.splice(0, flours.length, { name: 'Bread Flour', weight: 1000, protein: 12.5, increment: DEFAULT_FLOUR_INCREMENT });
   ingredients.splice(0, ingredients.length,
     { name: 'Water', percentage: 65, increment: 5, waterContent: 1 },
     { name: 'Salt', percentage: 2, increment: 0.5, waterContent: 0 },
@@ -590,32 +752,56 @@ function clearForm() {
 // URL
 function updateURL() {
   const params = new URLSearchParams();
-  params.set('flour', String(flour.value));
-  params.set('protein', String(proteinPer100g.value));
+  flours.forEach(f => params.append('f', `${f.name}:${f.weight}:${f.protein}`));
   ingredients.forEach((ing) => {
     params.append('ing', `${ing.name}:${ing.percentage}`);
   });
   history.replaceState(null, '', `?${params.toString()}`);
 }
 
+function loadFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const fParams = params.getAll('f');
+  if (!fParams.length && !params.has('flour')) return false;
+
+  const parsed = fParams.length
+    ? fParams.map(s => {
+        const [n, w, p] = s.split(':');
+        return { name: decodeURIComponent(n) || 'Flour', weight: Number(w) || 0, protein: Number(p) || 12.5, increment: DEFAULT_FLOUR_INCREMENT };
+      }).filter(f => f.weight > 0)
+    : [{ name: 'Flour', weight: Number(params.get('flour')) || 1000, protein: Number(params.get('protein')) || 12.5, increment: DEFAULT_FLOUR_INCREMENT }];
+
+  if (parsed.length) flours.splice(0, flours.length, ...parsed);
+
+  const ingParams = params.getAll('ing');
+  if (ingParams.length) {
+    const parsedIngs = ingParams.map((s) => {
+      const [name, pct] = s.split(':');
+      return { name, percentage: Number(pct) || 0, increment: DEFAULT_INCREMENTS[name] || 1, waterContent: DEFAULT_WATER_CONTENT[name] ?? 0 };
+    }).filter((i) => i.name);
+    if (parsedIngs.length) {
+      ingredients.splice(0, ingredients.length, ...parsedIngs);
+    }
+  }
+  return true;
+}
+
 function printSummary() {
-  const lines = [
-    currentRecipeName.value || 'Recipe',
-    '',
-    `Total dough: ${totalDough.value}g`,
-    `Hydration: ${actualHydration.value}%`,
-    `Flour protein: ${proteinPer100g.value}g/100g`,
-    '',
-    `Flour — ${flour.value || 0}g (100%)`,
-    ...ingredients.map((ing) => `${ing.name} — ${calcWeight(ing.percentage)}g (${ing.percentage || 0}%)`),
-  ];
+  const flourLines = flours.length > 1
+    ? [
+        ...flours.map(f => `${f.name} — ${f.weight || 0}g (${Math.round((f.weight || 0) / (totalFlour.value || 1) * 100)}%)`),
+        `Total flour — ${totalFlour.value}g (100%)`,
+      ]
+    : [`${flours[0]?.name || 'Flour'} — ${totalFlour.value || 0}g (100%)`];
+
   const w = window.open('', '_blank');
   w.document.write(`<html><head><title>Recipe</title><style>body{font-family:sans-serif;padding:2rem;max-width:480px}h1{font-size:1.25rem;margin-bottom:1rem}p{margin:0.25rem 0;font-size:0.9rem}hr{border:none;border-top:1px solid #ccc;margin:0.75rem 0}</style></head><body>`);
-  w.document.write(`<h1>${lines[0]}</h1><hr>`);
-  w.document.write(`<p><strong>${lines[2]}</strong></p>`);
-  w.document.write(`<p><strong>${lines[3]}</strong></p>`);
-  w.document.write(`<p>${lines[4]}</p><hr>`);
-  lines.slice(6).forEach((l) => w.document.write(`<p>${l}</p>`));
+  w.document.write(`<h1>${currentRecipeName.value || 'Recipe'}</h1><hr>`);
+  w.document.write(`<p><strong>Total dough: ${totalDough.value}g</strong></p>`);
+  w.document.write(`<p><strong>Hydration: ${actualHydration.value}%</strong></p>`);
+  w.document.write(`<p>Avg protein: ${weightedProtein.value.toFixed(1)}g/100g</p><hr>`);
+  flourLines.forEach(l => w.document.write(`<p>${l}</p>`));
+  ingredients.forEach(ing => w.document.write(`<p>${ing.name} — ${calcWeight(ing.percentage)}g (${ing.percentage || 0}%)</p>`));
   w.document.write(`</body></html>`);
   w.document.close();
   w.print();
@@ -627,26 +813,6 @@ function copyURL() {
     copied.value = true;
     setTimeout(() => { copied.value = false; }, 2000);
   });
-}
-
-function loadFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  if (!params.has('flour')) return false;
-
-  flour.value = Number(params.get('flour')) || 1000;
-  proteinPer100g.value = Number(params.get('protein')) || 12;
-
-  const ingParams = params.getAll('ing');
-  if (ingParams.length) {
-    const parsed = ingParams.map((s) => {
-      const [name, pct] = s.split(':');
-      return { name, percentage: Number(pct) || 0, increment: DEFAULT_INCREMENTS[name] || 1, waterContent: DEFAULT_WATER_CONTENT[name] ?? 0 };
-    }).filter((i) => i.name);
-    if (parsed.length) {
-      ingredients.splice(0, ingredients.length, ...parsed);
-    }
-  }
-  return true;
 }
 
 // Export/Import
@@ -684,8 +850,8 @@ onMounted(() => {
   if (!loadFromURL()) {
     const draft = storage.loadDraft();
     if (draft) {
-      flour.value = draft.flour ?? 1000;
-      proteinPer100g.value = draft.proteinPer100g ?? 12.5;
+      const migratedFlours = migrateFlours(draft);
+      flours.splice(0, flours.length, ...migratedFlours);
       if (draft.ingredients?.length) {
         const restored = draft.ingredients.map((i) => ({
           ...i,
