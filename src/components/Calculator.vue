@@ -9,6 +9,7 @@
             <i class="ri-download-line"></i>
           </button>
           <label class="icon-btn icon-btn-step" aria-label="Import recipes">
+            <span class="sr-only">Import recipes</span>
             <i class="ri-upload-line"></i>
             <input type="file" accept=".json" class="hidden" @change="handleImport" />
           </label>
@@ -264,32 +265,32 @@
           </div>
           <!-- Name (always shown) -->
           <div>
-            <label class="block text-sm font-medium mb-1">Name</label>
-            <input v-model="editName" type="text" class="input-field" />
+            <label for="edit-name" class="block text-sm font-medium mb-1">Name</label>
+            <input id="edit-name" v-model="editName" type="text" class="input-field" />
           </div>
           <!-- Amount -->
           <div>
-            <label class="block text-sm font-medium mb-1">
+            <label for="edit-amount" class="block text-sm font-medium mb-1">
               {{ editTarget?.type === 'flour' ? 'Amount (g)' : 'Percentage (%)' }}
             </label>
-            <input v-model.number="editAmount" type="number" inputmode="decimal" min="0" class="input-field" />
+            <input id="edit-amount" v-model.number="editAmount" type="number" inputmode="decimal" min="0" class="input-field" />
           </div>
           <!-- Increment -->
           <div>
-            <label class="block text-sm font-medium mb-1">
+            <label for="edit-increment" class="block text-sm font-medium mb-1">
               +/- step {{ editTarget?.type === 'flour' ? '(g)' : '(%)' }}
             </label>
-            <input v-model.number="editIncrement" type="number" inputmode="decimal" min="0.1" step="0.1" class="input-field" />
+            <input id="edit-increment" v-model.number="editIncrement" type="number" inputmode="decimal" min="0.1" step="0.1" class="input-field" />
           </div>
           <!-- Protein (flour only) -->
           <div v-if="editTarget?.type === 'flour'">
-            <label class="block text-sm font-medium mb-1">Protein per 100g</label>
-            <input v-model.number="editProtein" type="number" inputmode="decimal" min="8" max="15" step="0.1" class="input-field" />
+            <label for="edit-protein" class="block text-sm font-medium mb-1">Protein per 100g</label>
+            <input id="edit-protein" v-model.number="editProtein" type="number" inputmode="decimal" min="8" max="15" step="0.1" class="input-field" />
           </div>
           <!-- Water content (ingredients only) -->
           <div v-if="editTarget?.type !== 'flour'">
-            <label class="block text-sm font-medium mb-1">Water content (%)</label>
-            <input v-model.number="editWaterContent" type="number" inputmode="decimal" min="0" max="100" step="1" class="input-field" />
+            <label for="edit-water" class="block text-sm font-medium mb-1">Water content (%)</label>
+            <input id="edit-water" v-model.number="editWaterContent" type="number" inputmode="decimal" min="0" max="100" step="1" class="input-field" />
           </div>
           <div class="flex gap-2">
             <button @click="saveEditModal" class="btn-primary flex-1">Save</button>
@@ -351,8 +352,9 @@
             </button>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1">Recipe name</label>
+            <label for="recipe-name" class="block text-sm font-medium mb-1">Recipe name</label>
             <input
+              id="recipe-name"
               v-model="recipeName"
               type="text"
               maxlength="100"
@@ -362,8 +364,9 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1">Notes <span class="font-normal text-[var(--color-text-muted)]">(optional)</span></label>
+            <label for="recipe-notes" class="block text-sm font-medium mb-1">Notes <span class="font-normal text-[var(--color-text-muted)]">(optional)</span></label>
             <textarea
+              id="recipe-notes"
               v-model="recipeNotes"
               maxlength="500"
               rows="3"
@@ -389,6 +392,11 @@
           />
         </div>
       </div>
+
+<!-- Footer -->
+      <footer class="pb-4 text-center text-xs text-[var(--color-text-muted)]">
+        Developed by <a href="https://www.identik.hr" target="_blank" rel="noopener" class="underline hover:text-[var(--color-text)]">identik.hr</a>
+      </footer>
 
 <!-- Toast -->
       <Transition name="toast">
