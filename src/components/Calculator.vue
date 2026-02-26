@@ -1,24 +1,33 @@
 <template>
   <div class="min-h-screen">
     <!-- Header -->
-    <header class="sticky top-0 z-20 bg-[var(--color-bg)]/95 backdrop-blur-sm">
-      <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-        <h1><img src="/logo.svg" alt="MaBaker" class="w-full h-auto" /></h1>
-        <button
-          @click="showRecipes = !showRecipes"
-          class="relative p-2 rounded-[12px] border-2 border-[var(--color-text)] hover:bg-[var(--color-bg-alt)] transition-colors"
-          :aria-label="showRecipes ? 'Hide recipes' : 'Show recipes'"
-        >
-          <i class="ri-archive-line text-xl leading-none"></i>
-          <span
-            v-if="recipeCount > 0"
-            class="absolute -top-1 -right-1 w-4 h-4 bg-[var(--color-badge)] text-[var(--color-badge-fg)] text-[10px] font-bold rounded-full flex items-center justify-center"
-          >{{ recipeCount }}</span>
-        </button>
+    <header class="max-w-2xl mx-auto px-4 pt-4">
+      <div class="max-w-2xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[var(--color-surface)] rounded-2xl p-4">
+        <h1 class="font-digital italic text-5xl font-normal text-[var(--color-text)] tracking-wide">MA/BAKER</h1>
+        <div class="flex items-center gap-2">
+          <button @click="handleExport" class="icon-btn icon-btn-step" aria-label="Export recipes">
+            <i class="ri-download-line"></i>
+          </button>
+          <label class="icon-btn icon-btn-step" aria-label="Import recipes">
+            <i class="ri-upload-line"></i>
+            <input type="file" accept=".json" class="hidden" @change="handleImport" />
+          </label>
+          <button
+            @click="showRecipes = !showRecipes"
+            class="relative icon-btn icon-btn-step"
+            :aria-label="showRecipes ? 'Hide recipes' : 'Show recipes'"
+          >
+            <i class="ri-archive-line"></i>
+            <span
+              v-if="recipeCount > 0"
+              class="absolute -top-1 -right-1 w-4 h-4 bg-[var(--color-badge)] text-[var(--color-badge-fg)] text-[10px] font-bold rounded-full flex items-center justify-center"
+            >{{ recipeCount }}</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="max-w-2xl mx-auto px-4 py-6 space-y-6">
+    <main class="max-w-2xl mx-auto px-4 py-4 space-y-4">
       <!-- Current recipe indicator -->
       <div v-if="currentRecipeId" class="flex items-center justify-between border-2 border-[var(--color-text)] rounded-[12px] px-3 py-2 text-sm">
         <span class="text-[var(--color-text-secondary)]">
@@ -30,7 +39,7 @@
       </div>
 
       <!-- Ingredient Cards -->
-      <section class="space-y-3">
+      <section class="space-y-4">
         <h2 class="sr-only">Ingredients</h2>
 
         <!-- Flour Card -->
@@ -120,15 +129,21 @@
 
         <!-- Ingredient modal -->
         <div v-if="showAddMenu" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" @click.self="showAddMenu = false">
-          <div class="bg-[var(--color-bg)] border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md p-5 space-y-4">
-            <h3 class="text-lg font-semibold">Ingredients</h3>
-            <div ref="ingredientListRef" class="space-y-1 max-h-[60vh] overflow-y-auto -mx-2 px-2">
+          <div class="bg-[var(--color-bg)] rounded-2xl w-full max-w-md p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-digital italic text-4xl font-normal text-[var(--color-text)]">Ingredients</h3>
+              <button @click="showAddMenu = false" class="icon-btn icon-btn-step" aria-label="Close">
+                <i class="ri-close-line"></i>
+              </button>
+            </div>
+            <div class="relative overflow-hidden rounded-b-2xl">
+            <div ref="ingredientListRef" class="space-y-2 max-h-[60vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]" @scroll="onIngredientListScroll">
               <div
                 v-for="item in starterPack"
                 :key="item"
-                class="flex items-center justify-between px-3 py-2.5 rounded-md"
+                class="ingredient-card flex items-center justify-between"
               >
-                <span class="text-sm font-medium" :class="isAdded(item) ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-text)]'">{{ item }}</span>
+                <span class="text-base font-medium" :class="isAdded(item) ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-text)]'">{{ item }}</span>
                 <button
                   v-if="isAdded(item)"
                   @click="removeIngredientByName(item)"
@@ -140,24 +155,31 @@
                 <button
                   v-else
                   @click="addIngredient(item)"
-                  class="icon-btn"
+                  class="icon-btn icon-btn-step"
                   :aria-label="'Add ' + item"
                 >
                   <i class="ri-add-line"></i>
                 </button>
               </div>
             </div>
-            <button @click="showAddMenu = false" class="btn-tertiary w-full">Close</button>
+            <div class="pointer-events-none absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-[var(--color-bg)] to-transparent transition-opacity duration-300" :class="ingredientListAtTop ? 'opacity-0' : 'opacity-100'"></div>
+            <div class="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[var(--color-bg)] to-transparent transition-opacity duration-300" :class="ingredientListAtBottom ? 'opacity-0' : 'opacity-100'"></div>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- Edit Modal -->
       <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" @click.self="showEditModal = false">
-        <div class="bg-[var(--color-bg)] border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md p-5 space-y-4">
-          <h3 class="text-lg font-semibold">
-            Edit {{ editTarget === 'flour' ? 'Flour' : editName }}
-          </h3>
+        <div class="bg-[var(--color-bg)] rounded-2xl w-full max-w-md p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-digital italic text-4xl font-normal text-[var(--color-text)]">
+              {{ editTarget === 'flour' ? 'Flour' : editName }}
+            </h3>
+            <button @click="showEditModal = false" class="icon-btn icon-btn-step" aria-label="Close">
+              <i class="ri-close-line"></i>
+            </button>
+          </div>
           <!-- Name (not for flour) -->
           <div v-if="editTarget !== 'flour'">
             <label class="block text-sm font-medium mb-1">Name</label>
@@ -237,10 +259,15 @@
 
       <!-- Save Dialog -->
       <div v-if="showSaveDialog" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" @click.self="showSaveDialog = false">
-        <div class="bg-[var(--color-bg)] border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md p-5 space-y-4">
-          <h3 class="text-lg font-semibold">
-            {{ currentRecipeId ? 'Update recipe' : 'Save recipe' }}
-          </h3>
+        <div class="bg-[var(--color-bg)] rounded-2xl w-full max-w-md p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-digital italic text-4xl font-normal text-[var(--color-text)]">
+              {{ currentRecipeId ? 'Update' : 'Save' }}
+            </h3>
+            <button @click="showSaveDialog = false" class="icon-btn icon-btn-step" aria-label="Close">
+              <i class="ri-close-line"></i>
+            </button>
+          </div>
           <div>
             <label class="block text-sm font-medium mb-1">Recipe name</label>
             <input
@@ -271,7 +298,7 @@
 
       <!-- Recipe Panel -->
       <div v-if="showRecipes" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" @click.self="showRecipes = false">
-        <div class="bg-[var(--color-bg)] border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-md max-h-[80vh] overflow-y-auto">
+        <div class="bg-[var(--color-bg)] rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto">
           <RecipeManager
             @load="handleLoadRecipe"
             @close="showRecipes = false"
@@ -280,19 +307,7 @@
         </div>
       </div>
 
-      <!-- Import/Export -->
-      <section class="flex gap-2 text-sm">
-        <button @click="handleExport" class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] underline">
-          Export recipes
-        </button>
-        <span class="text-[var(--color-border)]">&middot;</span>
-        <label class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] underline cursor-pointer">
-          Import recipes
-          <input type="file" accept=".json" class="hidden" @change="handleImport" />
-        </label>
-      </section>
-
-      <!-- Toast -->
+<!-- Toast -->
       <Transition name="toast">
         <div
           v-if="toast.show"
@@ -356,14 +371,29 @@ const copied = ref(false);
 const recipeRefreshKey = ref(0);
 const nameInput = ref(null);
 const ingredientListRef = ref(null);
+const ingredientListAtBottom = ref(false);
+const ingredientListAtTop = ref(true);
+
+function onIngredientListScroll(e) {
+  const el = e.target;
+  ingredientListAtTop.value = el.scrollTop <= 2;
+  ingredientListAtBottom.value = el.scrollHeight - el.scrollTop <= el.clientHeight + 2;
+}
 
 watch(showAddMenu, (open) => {
   if (open) {
     nextTick(() => {
-      if (ingredientListRef.value) disableBodyScroll(ingredientListRef.value);
+      if (ingredientListRef.value) {
+        disableBodyScroll(ingredientListRef.value);
+        const el = ingredientListRef.value;
+        ingredientListAtTop.value = true;
+        ingredientListAtBottom.value = el.scrollHeight <= el.clientHeight;
+      }
     });
   } else {
     if (ingredientListRef.value) enableBodyScroll(ingredientListRef.value);
+    ingredientListAtBottom.value = false;
+    ingredientListAtTop.value = true;
   }
 });
 

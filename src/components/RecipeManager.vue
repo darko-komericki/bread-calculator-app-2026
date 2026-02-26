@@ -1,9 +1,9 @@
 <template>
   <section class="p-5 space-y-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-sm font-semibold">Saved Recipes</h2>
-      <button @click="$emit('close')" class="text-[var(--color-text-muted)] hover:text-[var(--color-text)]">
-        <i class="ri-close-line text-xl"></i>
+      <h2 class="font-digital italic text-4xl font-normal text-[var(--color-text)]">Recipes</h2>
+      <button @click="$emit('close')" class="icon-btn icon-btn-step" aria-label="Close">
+        <i class="ri-close-line"></i>
       </button>
     </div>
 
@@ -57,7 +57,7 @@
 
     <!-- Delete confirmation -->
     <div v-if="deletingRecipe" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" @click.self="deletingRecipe = null">
-      <div class="bg-[var(--color-bg)] border-2 border-[var(--color-text)] rounded-[16px] w-full max-w-sm p-5 space-y-4">
+      <div class="bg-[var(--color-bg)] rounded-2xl w-full max-w-sm p-4 space-y-4">
         <p>Delete <strong>{{ deletingRecipe.name }}</strong>?</p>
         <div class="flex gap-2">
           <button @click="handleDelete" class="btn-primary flex-1">

@@ -47,10 +47,6 @@
   --color-display-border: #afac83;  /* dry-sage-400 */
   --color-display-text: #e7e8e3;
 
-  /* Shadows */
-  --shadow-card: 0 1px 3px rgba(46, 34, 5, 0.1);
-  --shadow-lg: 0 4px 12px rgba(46, 34, 5, 0.15);
-
   /* Font */
   --font-sans: "Inter", "Roboto", "Helvetica Neue", "Arial Nova", "Nimbus Sans", "Arial", sans-serif;
   --font-digital: "Digital7", monospace;
@@ -58,14 +54,12 @@
 
 /* Base */
 html {
-  scroll-behavior: smooth;
+  @apply scroll-smooth;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  @apply font-sans bg-[var(--color-bg)] text-[var(--color-text)];
 }
 
 /* Number input - hide spinners */
@@ -81,170 +75,103 @@ input[type="number"] {
 
 /* Input */
 .input-field {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  font-size: 1rem;
-  line-height: 1.5;
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  border: 2px solid var(--color-border);
-  outline: none;
-  transition: box-shadow 0.15s, border-color 0.15s;
+  @apply w-full py-3 px-4 rounded-xl text-base leading-normal bg-[var(--color-surface)] text-[var(--color-text)] border-2 border-[var(--color-border)] outline-none transition-colors;
 }
 
 .input-field:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(230, 104, 25, 0.15);
+  @apply border-[var(--color-accent)];
 }
 
 .input-field::placeholder {
-  color: var(--color-text-muted);
+  @apply text-[var(--color-text-muted)];
 }
 
 textarea.input-field {
-  padding-right: 1rem;
+  @apply pr-4;
 }
 
-/* Buttons */
+/* Buttons — shared base */
+.btn-primary,
+.btn-secondary,
+.btn-tertiary {
+  @apply py-3 px-5 rounded-xl text-sm font-semibold uppercase tracking-[0.03em] cursor-pointer border-2 transition-colors;
+}
+
 .btn-primary {
-  padding: 0.75rem 1.25rem;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  background-color: #9EA092;
-  color: #1E150F;
-  border: 2px solid #9EA092;
-  cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s;
+  @apply bg-[#9EA092] text-[#1E150F] border-[#9EA092];
 }
 
 .btn-primary:hover {
-  background-color: #c3c1a2;
-  border-color: #c3c1a2;
+  @apply bg-[#c3c1a2] border-[#c3c1a2];
 }
 
 .btn-primary:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+  @apply opacity-40 cursor-not-allowed;
 }
 
 .btn-secondary {
-  padding: 0.75rem 1.25rem;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  background-color: var(--color-bg);
-  color: #1E150F;
-  border: 2px solid var(--color-bg);
-  cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s;
+  @apply bg-[var(--color-bg)] text-[#1E150F] border-[var(--color-bg)];
 }
 
 .btn-secondary:hover {
-  background-color: #b3b19a;
-  border-color: #b3b19a;
+  @apply bg-[#b3b19a] border-[#b3b19a];
 }
 
 .btn-tertiary {
-  padding: 0.75rem 1.25rem;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  background-color: #EC8D53;
-  color: #1E150F;
-  border: 2px solid #EC8D53;
-  cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s;
+  @apply bg-[#EC8D53] text-[#1E150F] border-[#EC8D53];
 }
 
 .btn-tertiary:hover {
-  background-color: #e66819;
-  border-color: #e66819;
+  @apply bg-[var(--color-accent)] border-[var(--color-accent)];
 }
 
 /* Ingredient cards */
 .ingredient-card {
-  background-color: var(--color-surface);
-  border-radius: 16px;
-  padding: 1rem;
+  @apply bg-[var(--color-surface)] rounded-2xl p-4;
 }
 
 /* Pills */
 .pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 1.25rem;
-  padding: 0 0.5rem;
-  border: none;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  background-color: var(--color-badge);
-  color: var(--color-badge-fg);
+  @apply inline-flex items-center justify-center h-5 px-2 border-0 rounded-full text-xs font-bold leading-none whitespace-nowrap bg-[var(--color-badge)] text-[var(--color-badge-fg)];
 }
 
 .pill-base {
-  background-color: var(--color-badge);
-  color: var(--color-badge-fg);
+  @apply bg-[var(--color-badge)] text-[var(--color-badge-fg)];
 }
 
 /* Circle icon buttons */
 .icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  font-size: 1.5rem;
-  border: none;
-  border-radius: 9999px;
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  cursor: pointer;
-  transition: background-color 0.15s;
+  @apply inline-flex items-center justify-center w-12 h-12 text-2xl border-0 rounded-full bg-[var(--color-surface)] text-[var(--color-text)] cursor-pointer transition-colors;
 }
 
 .icon-btn:hover {
-  background-color: var(--color-bg-alt);
+  @apply bg-[var(--color-bg-alt)];
 }
 
 .icon-btn:active {
-  background-color: var(--color-border);
+  @apply bg-[var(--color-border)];
 }
 
 .icon-btn-step {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-}
-
-.icon-btn-edit {
-  background-color: #9EA092;
-  color: var(--color-text);
-}
-
-.icon-btn-danger {
-  background-color: #EC8D53;
-  color: var(--color-text);
+  @apply bg-[var(--color-bg)] text-[var(--color-text)];
 }
 
 .icon-btn-step:hover {
-  background-color: #b3b19a;
+  @apply bg-[#b3b19a];
+}
+
+.icon-btn-edit {
+  @apply bg-[#9EA092] text-[var(--color-text)];
 }
 
 .icon-btn-edit:hover {
-  background-color: #c3c1a2;
+  @apply bg-[#c3c1a2];
+}
+
+.icon-btn-danger {
+  @apply bg-[#EC8D53] text-[var(--color-text)];
 }
 
 .icon-btn-danger:hover {
-  background-color: #e66819;
+  @apply bg-[var(--color-accent)];
 }
